@@ -1,0 +1,64 @@
+rules_version = '2';
+
+// ============================================================
+//  Reglas de seguridad - Evento Halloween SubManhwa
+//
+//  ANTES DE PUBLICAR: reemplaza ADMIN_UID_AQUI por el UID del usuario admin
+//  (Firebase Console → Authentication → Usuarios → columna "UID de usuario").
+// ============================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'ADMIN_UID_AQUI';
+    }
+
+    // Un voto es válido solo si:
+    //  - el ID es "{rondaId}_{usuario en minúsculas}"  → una persona = un voto por ronda
+    //  - la ronda es la activa, está en estado 'activa' y la hora del SERVIDOR está dentro de su plazo
+    //  - la carta elegida existe en esa ronda
+    //  - no se ha superado el cierre general del evento
+    function validVote(id) {
+      let d = request.resource.data;
+      let ev = get(/databases/$(database)/documents/config/evento).data;
+      let r = get(/databases/$(database)/documents/rondas/$(d.rondaId)).data;
+      return d.keys().hasOnly(['usuario', 'usuarioLower', 'rondaId', 'cartaId', 'creado', 'entregado'])
+        && d.keys().hasAll(['usuario', 'usuarioLower', 'rondaId', 'cartaId', 'creado', 'entregado'])
+        && d.usuario is string && d.usuarioLower is string
+        && d.rondaId is string && d.cartaId is string
+        && d.usuario.size() >= 2 && d.usuario.size() <= 30
+        && d.usuario.matches('^[^/\\s]+( [^/\\s]+)*$')
+        && d.usuarioLower == d.usuario.lower()
+        && id == d.rondaId + '_' + d.usuarioLower
+        && d.entregado == false
+        && d.creado == request.time
+        && ev.activo == true
+        && ev.rondaActiva == d.rondaId
+        && r.estado == 'activa'
+        && d.cartaId in r.cartas.keys()
+        && request.time >= r.inicio
+        && request.time < r.fin
+        && request.time < ev.finEvento;
+    }
+
+    // Configuración general del evento: todos leen, solo el admin escribe.
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Rondas (cartas, fechas, estado): todos leen, solo el admin escribe.
+    match /rondas/{rondaId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Votos: todos leen (para mostrar los nombres bajo cada carta).
+    // Cualquiera puede CREAR un voto válido, pero nadie puede editarlo ni borrarlo salvo el admin.
+    match /votos/{votoId} {
+      allow read: if true;
+      allow create: if validVote(votoId);
+      allow update, delete: if isAdmin();
+    }
+  }
+}

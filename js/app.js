@@ -1,13 +1,17 @@
 // Página pública del evento: ronda activa, contador, elección de carta y nombres de quienes ya eligieron.
-import { db, configurado, OPCIONES } from './firebase-config.js';
 import {
   collection, doc, onSnapshot, getDoc, getDocs, setDoc, query, where, serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import { syncServerTime, now, startCountdown } from './countdown.js';
-import {
+
+// Los módulos locales se cargan con la misma versión (?v=...) con la que index.html cargó este archivo,
+// así ningún .js se sirve desde la caché. (Los de Firebase llevan versión fija en su URL.)
+const V = new URL(import.meta.url).search;
+const { db, configurado, OPCIONES } = await import(`./firebase-config.js${V}`);
+const { syncServerTime, now, startCountdown } = await import(`./countdown.js${V}`);
+const {
   esc, normalizeUser, validUser, voteId, tsToDate, fmtDateTime, premioTexto, cartasDe,
-  FALLBACK_IMG, NORMAS_DEFAULT, store, makeEmbers,
-} from './utils.js';
+  FALLBACK_IMG, NORMAS_DEFAULT, store, makeEmbers, imgUrl,
+} = await import(`./utils.js${V}`);
 
 const $ = (id) => document.getElementById(id);
 
@@ -113,13 +117,16 @@ function updateCountdown(st) {
   );
 }
 
+// Versión de las imágenes: cambia cuando el admin guarda la ronda o pulsa «Limpiar caché de imágenes».
+const verImg = (r) => Math.max(Number(r?.version) || 0, Number(state.evento?.cacheVersion) || 0);
+
 function cardHTML(c, opts) {
-  const { retired = false, boton = '', mine = false } = opts;
+  const { retired = false, boton = '', mine = false, ver = 0 } = opts;
   const prize = c.tipo === 'kakeras' ? premioTexto(c) : '';
   return `
     <article class="card${mine ? ' mine' : ''}${retired ? ' retired' : ''}" data-carta="${esc(c.id)}">
       <div class="card-img">
-        <img src="${esc(c.imagen || '')}" alt="${esc(c.nombre)}" loading="lazy" decoding="async">
+        <img src="${esc(imgUrl(c.imagen, ver))}" alt="${esc(c.nombre)}" loading="lazy" decoding="async">
         <span class="badge">${c.tipo === 'kakeras' ? 'Kakeras' : 'Carta'}</span>
         ${mine ? '<span class="badge mine-badge">Tu elección</span>' : ''}
         ${retired ? '<div class="ribbon">Ya no disponible</div>' : ''}
@@ -163,7 +170,7 @@ function renderCartas(st) {
       else if (abierta) { label = 'Elegir esta carta'; off = false; }
       else if (st.k === 'pronto') label = 'Aún no abre';
       const boton = `<button type="button" class="btn" data-pick="${esc(c.id)}"${off ? ' disabled' : ''}>${label}</button>`;
-      return cardHTML(c, { boton, mine: miVoto === c.id });
+      return cardHTML(c, { boton, mine: miVoto === c.id, ver: verImg(r) });
     })
     .join('');
   sec.hidden = false;
@@ -206,7 +213,7 @@ function renderRetiradas() {
             <span class="when">Cerró: ${esc(fmtDateTime(tsToDate(r.fin)))}</span>
             ${btn}
           </div>
-          <div class="cards">${cartasDe(r).map((c) => cardHTML(c, { retired: true })).join('')}</div>
+          <div class="cards">${cartasDe(r).map((c) => cardHTML(c, { retired: true, ver: verImg(r) })).join('')}</div>
         </div>`;
     })
     .join('');

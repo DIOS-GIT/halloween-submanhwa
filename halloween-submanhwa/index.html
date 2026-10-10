@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07040a">
+  <title>Evento de Halloween · SubManhwa</title>
+  <meta name="description" content="Evento de Halloween de SubManhwa: elige tu carta de la ronda antes de que se acabe el tiempo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <header class="hero">
+    <p class="eyebrow">SubManhwa presenta</p>
+    <h1 id="titulo">Noche de Tentación</h1>
+    <p id="subtitulo" class="subtitle">Elige tu carta… si te atreves</p>
+    <div class="divider" aria-hidden="true"><span>✦</span></div>
+
+    <p id="estado" class="estado" role="status">Cargando evento…</p>
+
+    <section id="countdown" class="countdown" hidden aria-live="off">
+      <p id="cd-label" class="cd-label"></p>
+      <div class="cd-grid">
+        <div class="cd-box"><b id="cd-d">0</b><span>días</span></div>
+        <div class="cd-box"><b id="cd-h">00</b><span>horas</span></div>
+        <div class="cd-box"><b id="cd-m">00</b><span>min</span></div>
+        <div class="cd-box"><b id="cd-s">00</b><span>seg</span></div>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section id="normas-section" class="panel normas" aria-labelledby="normas-title">
+      <h2 id="normas-title">Normas del evento</h2>
+      <ol id="normas" class="normas-list"></ol>
+    </section>
+
+    <section id="cartas-section" hidden aria-labelledby="cartas-title">
+      <h2 id="cartas-title" class="section-title">Cartas de la ronda <span id="ronda-num"></span></h2>
+      <div id="cartas" class="cards"></div>
+    </section>
+
+    <section id="retiradas-section" hidden aria-labelledby="ret-title">
+      <h2 id="ret-title" class="section-title">Cartas retiradas</h2>
+      <p class="muted center">Salieron de rotación y ya no se pueden conseguir.</p>
+      <div id="retiradas"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© SubManhwa · Evento de Halloween</p>
+  </footer>
+
+  <!-- Panel para escribir el usuario -->
+  <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-sheet">
+      <button type="button" class="modal-x" data-close aria-label="Cerrar">×</button>
+
+      <div id="modal-form-view">
+        <p class="eyebrow">Tu elección</p>
+        <h2 id="modal-title">…</h2>
+        <p id="modal-prize" class="muted"></p>
+
+        <form id="form-voto" novalidate>
+          <label class="label" for="f-user">Tu usuario de SubManhwa</label>
+          <input id="f-user" class="input" type="text" inputmode="text" autocomplete="username"
+                 autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="31" placeholder="tu_usuario" required>
+
+          <label class="check">
+            <input type="checkbox" id="f-ok">
+            <span>Confirmo que este es mi usuario y que mi elección es definitiva.</span>
+          </label>
+
+          <p id="modal-error" class="error" role="alert" hidden></p>
+
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" data-close>Cancelar</button>
+            <button type="submit" id="btn-confirmar" class="btn">Confirmar elección</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="modal-done-view" hidden class="center">
+        <p class="eyebrow">¡Listo!</p>
+        <h2 id="done-title">Elección registrada</h2>
+        <p id="done-text" class="muted"></p>
+        <div class="actions"><button type="button" class="btn" data-close>Cerrar</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

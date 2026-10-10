@@ -9,7 +9,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <!-- Sin caché: el CSS y el JS se piden siempre con una versión nueva (?v=...) para que cualquier cambio se vea al recargar. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script>
+    window.__V = Date.now();
+    document.write('<link rel="stylesheet" href="css/styles.css?v=' + window.__V + '">');
+  </script>
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -94,6 +101,12 @@
     </div>
   </div>
 
-  <script type="module" src="js/app.js"></script>
+  <script type="module">
+    import(`./js/app.js?v=${window.__V}`).catch((e) => {
+      console.error(e);
+      document.getElementById('estado').textContent = 'No se pudo cargar la página. Recarga e inténtalo de nuevo.';
+    });
+  </script>
+  <noscript><p class="center" style="padding:20px">Necesitas activar JavaScript para participar en el evento.</p></noscript>
 </body>
 </html>

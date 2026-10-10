@@ -9,8 +9,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/admin.css">
+  <!-- Sin caché: CSS y JS siempre con versión nueva (?v=...). -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script>
+    window.__V = Date.now();
+    document.write(
+      '<link rel="stylesheet" href="css/styles.css?v=' + window.__V + '">' +
+      '<link rel="stylesheet" href="css/admin.css?v=' + window.__V + '">'
+    );
+  </script>
 </head>
 <body class="admin">
   <div class="ambient" aria-hidden="true"></div>
@@ -83,6 +92,16 @@
         </label>
         <div class="actions"><button type="submit" class="btn">Guardar configuración</button></div>
       </form>
+
+      <div class="cache-box">
+        <h3>Caché de imágenes</h3>
+        <p class="hint">
+          Al guardar una ronda, las imágenes ya se actualizan solas para todos. Usa este botón solo si reemplazaste
+          una imagen en el repositorio <b>con el mismo nombre de archivo</b> y los visitantes siguen viendo la anterior.
+          Pulsa cuando GitHub Pages ya haya terminado de publicar (pestaña «Actions» del repositorio).
+        </p>
+        <button type="button" id="btn-cache" class="btn btn-ghost btn-sm">Limpiar caché de imágenes de todos</button>
+      </div>
     </section>
 
     <!-- ----- Rondas ----- -->
@@ -150,6 +169,11 @@
 
   <div id="toast" class="toast" role="status" hidden></div>
 
-  <script type="module" src="js/admin.js"></script>
+  <script type="module">
+    import(`./js/admin.js?v=${window.__V}`).catch((e) => {
+      console.error(e);
+      document.body.insertAdjacentHTML('afterbegin', '<p style="padding:20px;color:#ff5470">No se pudo cargar el panel. Recarga la página.</p>');
+    });
+  </script>
 </body>
 </html>

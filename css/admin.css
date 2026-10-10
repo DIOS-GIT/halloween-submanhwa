@@ -81,3 +81,8 @@ body.admin { padding-bottom: env(safe-area-inset-bottom); }
 @media (min-width: 900px) {
   .cartas-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* ---------- Caché de imágenes ---------- */
+.cache-box { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); }
+.cache-box h3 { font-size: 1rem; margin-bottom: 6px; }
+.cache-box .btn { margin-top: 12px; }

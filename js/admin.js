@@ -1,15 +1,18 @@
 // Panel de administración: evento, rondas/cartas y participantes.
 // La seguridad real está en firestore.rules (solo el UID admin puede escribir config y rondas).
-import { app, db, configurado } from './firebase-config.js';
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {
   doc, collection, getDoc, getDocs, setDoc, updateDoc, deleteDoc, writeBatch, query, where, limit, Timestamp,
 } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
-import {
-  esc, tsToDate, fmtDateTime, toInputValue, fromInputValue, premioTexto, cartasDe, NORMAS_DEFAULT, FALLBACK_IMG, makeEmbers,
-} from './utils.js';
+
+// Módulos locales con la misma versión (?v=...) que admin.html usó para cargar este archivo (sin caché).
+const V = new URL(import.meta.url).search;
+const { app, db, configurado } = await import(`./firebase-config.js${V}`);
+const {
+  esc, tsToDate, fmtDateTime, toInputValue, fromInputValue, premioTexto, cartasDe, NORMAS_DEFAULT, FALLBACK_IMG, makeEmbers, imgUrl,
+} = await import(`./utils.js${V}`);
 
 const $ = (id) => document.getElementById(id);
 const auth = getAuth(app);
@@ -117,6 +120,16 @@ $('form-evento').addEventListener('submit', (e) => {
   });
 });
 
+// Fuerza a todos los visitantes a volver a descargar las imágenes (incluso con la página abierta).
+$('btn-cache').addEventListener('click', (e) => {
+  if (!S.evento) return toast('Primero guarda la configuración del evento.', 'err');
+  conBoton(e.currentTarget, async () => {
+    await setDoc(doc(db, 'config', 'evento'), { cacheVersion: Date.now() }, { merge: true });
+    await cargar();
+    toast('Listo: los visitantes descargarán las imágenes de nuevo.');
+  });
+});
+
 /* ------------------------------------------------------------------ */
 /*  Pestaña: Rondas                                                   */
 /* ------------------------------------------------------------------ */
@@ -137,7 +150,7 @@ function pintarRondas() {
             .map(
               (c) => `
               <div class="thumb">
-                <img src="${esc(c.imagen)}" alt="" loading="lazy">
+                <img src="${esc(imgUrl(c.imagen, Date.now()))}" alt="" loading="lazy">
                 <b>${esc(c.nombre)}</b>${esc(c.tipo === 'kakeras' ? premioTexto(c) : 'Carta')}
               </div>`
             )
@@ -195,7 +208,7 @@ function cartaFormHTML(i, c, numero) {
       <label class="label">Descripción (opcional)</label>
       <input class="input" data-f="descripcion" maxlength="120" value="${esc(c?.descripcion || '')}">
 
-      <img class="prev" data-prev src="${esc(imagen)}" alt="Vista previa">
+      <img class="prev" data-prev src="${esc(imgUrl(imagen, Date.now()))}" alt="Vista previa">
     </fieldset>`;
 }
 
@@ -297,6 +310,8 @@ $('form-ronda').addEventListener('submit', (e) => {
       fin: Timestamp.fromDate(fin),
       estado: previa?.estado || 'proxima',
       cartas,
+      // Cada vez que se guarda la ronda cambia la versión: los visitantes vuelven a descargar las imágenes.
+      version: Date.now(),
     });
     await cargar();
     pintarTodo();
@@ -372,7 +387,7 @@ $('btn-ronda-cancel').addEventListener('click', cerrarFormRonda);
 $('ronda-cartas').addEventListener('input', (e) => {
   if (e.target.matches('[data-f="imagen"]')) {
     const prev = e.target.closest('.cfs').querySelector('[data-prev]');
-    prev.src = e.target.value.trim() || FALLBACK_IMG;
+    prev.src = imgUrl(e.target.value.trim(), Date.now()) || FALLBACK_IMG;
   }
 });
 $('ronda-cartas').addEventListener('change', (e) => {

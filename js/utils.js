@@ -43,7 +43,15 @@ export const validUser = (display) => display.length >= 2 && display.length <= 3
 // ID del documento de voto: una persona = un documento por ronda.
 export const voteId = (rondaId, lower) => `${rondaId}_${lower}`;
 
-export const tsToDate = (t) => (t && typeof t.toDate === 'function' ? t.toDate() : t instanceof Date ? t : null);
+// Añade ?v=<versión> a las imágenes locales para saltarse la caché del navegador y de la CDN.
+// Las URLs externas (http/https/data) se dejan intactas.
+export function imgUrl(src, ver) {
+  const s = String(src || '');
+  if (!s || !ver || /^(https?:|data:|blob:|\/\/)/i.test(s)) return s;
+  return s + (s.includes('?') ? '&' : '?') + 'v=' + ver;
+}
+
+export const tsToDate =(t) => (t && typeof t.toDate === 'function' ? t.toDate() : t instanceof Date ? t : null);
 
 export const fmtDateTime = (d) =>
   d ? new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short', timeZone: ZONA }).format(d) : '—';

@@ -66,6 +66,25 @@ Sitio estático (GitHub Pages) con datos en Firebase (Firestore + Authentication
 - Las 3 cartas de ejemplo (`carta1.svg` a `carta3.svg`) son solo marcadores; reemplázalas por las reales.
 - Después de subir imágenes nuevas, GitHub Pages tarda 1 o 2 minutos en publicarlas.
 
+## Caché: cómo se evita que se vea contenido viejo
+
+GitHub Pages guarda los archivos en caché unos 10 minutos y esa cabecera no se puede cambiar. Para que un cambio de cartas se vea siempre, el proyecto trabaja así:
+
+| Qué cambia | Cómo se actualiza |
+|---|---|
+| Cartas, fechas, normas, estado de la ronda, nombres | Vienen de Firestore en vivo; no pasan por la caché del navegador. Se actualizan incluso con la página abierta. |
+| `app.js`, `admin.js` y los demás `.js` | Se cargan siempre con una versión nueva (`?v=hora actual`), así que cada recarga baja la última versión. |
+| `styles.css` y `admin.css` | Igual: se piden con `?v=hora actual`. |
+| Imágenes de las cartas | Llevan `?v=` con la versión de la ronda, que cambia cada vez que guardas la ronda en el panel. |
+| `index.html` y `admin.html` | Llevan metaetiquetas de no-caché, pero GitHub Pages puede servirlos hasta ~10 minutos desde su CDN. Son una carcasa casi fija; solo importa si editas el propio HTML. |
+
+**Al cambiar cartas (lo normal):**
+1. Sube las imágenes nuevas a `assets/cards/` con **nombres nuevos** (por ejemplo `r2-c1.webp`). Un nombre nuevo nunca puede estar en caché.
+2. Espera a que GitHub Pages termine de publicar (pestaña **Actions** del repositorio, 1 o 2 minutos).
+3. Crea o edita la ronda en el panel y guarda. Eso actualiza la versión de las imágenes.
+
+**Si reemplazas una imagen conservando el mismo nombre:** cuando GitHub Pages haya terminado de publicar, guarda de nuevo la ronda o pulsa **«Limpiar caché de imágenes de todos»** (pestaña Evento). Si lo haces antes de que termine la publicación, la CDN puede guardar la imagen vieja con la versión nueva.
+
 ## Seguridad: qué garantiza cada parte
 
 | Qué | Cómo |
