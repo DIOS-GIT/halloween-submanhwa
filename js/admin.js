@@ -142,7 +142,7 @@ function pintarRondas() {
           const enCurso = ev?.rondaActiva === r.id && r.estado === 'activa';
           const acciones = [
             `<button type="button" class="btn btn-ghost btn-sm" data-act="editar" data-id="${esc(r.id)}">Editar</button>`,
-            r.estado === 'proxima' ? `<button type="button" class="btn btn-sm" data-act="activar" data-id="${esc(r.id)}">Activar</button>` : '',
+            r.estado !== 'activa' ? `<button type="button" class="btn btn-sm" data-act="activar" data-id="${esc(r.id)}">Activar</button>` : '',
             r.estado === 'activa' ? `<button type="button" class="btn btn-danger btn-sm" data-act="cerrar" data-id="${esc(r.id)}">Cerrar ronda</button>` : '',
             r.estado === 'proxima' ? `<button type="button" class="btn btn-ghost btn-sm" data-act="eliminar" data-id="${esc(r.id)}">Eliminar</button>` : '',
           ].join('');
