@@ -8,12 +8,13 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/fireba
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 export const firebaseConfig = {
-  apiKey: 'TU_API_KEY',
-  authDomain: 'TU_PROYECTO.firebaseapp.com',
-  projectId: 'TU_PROYECTO',
-  storageBucket: 'TU_PROYECTO.appspot.com',
-  messagingSenderId: 'TU_SENDER_ID',
-  appId: 'TU_APP_ID',
+  apiKey: "AIzaSyCJZC6MC79Y6L5c0PyD8wUYIBJ9qd4i538",
+  authDomain: "halloween-submanhwa.firebaseapp.com",
+  projectId: "halloween-submanhwa",
+  storageBucket: "halloween-submanhwa.firebasestorage.app",
+  messagingSenderId: "70432281922",
+  appId: "1:70432281922:web:f6e90be97a7fa8d96f64db"
+
 };
 
 // Opciones del evento
